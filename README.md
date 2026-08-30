@@ -1,1 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIRUS</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      padding: 25px;
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 42px;
+      font-weight: bold;
+      margin-top: 35px;
+      letter-spacing: 5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #ccc;
+      margin: 10px 0 35px;
+    }
+
+    .card {
+      background: #fff;
+      color: #000;
+      border-radius: 18px;
+      padding: 25px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #000;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    .back {
+      background: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: 1px solid #999;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      background: #eee;
+      color: #000;
+      border-radius: 8px;
+    }
+
+    footer {
+      text-align: center;
+      color: #777;
+      margin-top: 35px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- ACCUEIL -->
+  <section id="home">
+    <div class="logo">VIRUS</div>
+
+    <div class="subtitle" id="welcome">
+      Bienvenue sur VIRUS
+    </div>
+
+    <div class="card">
+      <h2 id="choose">Choisissez votre espace</h2>
+
+      <button onclick="showPage('client')">
+        👤 Client
+      </button>
+
+      <button onclick="showPage('merchant')">
+        🏪 Commerçant
+      </button>
+
+      <button onclick="showPage('delivery')">
+        🚴 Livreur
+      </button>
+
+      <button onclick="showPage('founder')">
+        👑 Fondateur
+      </button>
+    </div>
+
+    <div class="card">
+      <h3 id="languageTitle">Langue / Language</h3>
+
+      <button onclick="setLanguage('fr')">
+        🇫🇷 Français
+      </button>
+
+      <button onclick="setLanguage('en')">
+        🇬🇧 English
+      </button>
+    </div>
+
+    <footer>
+      VIRUS © 2026
+    </footer>
+  </section>
+
+
+  <!-- CLIENT -->
+  <section id="client" class="hidden">
+
+    <div class="logo">VIRUS</div>
+
+    <div class="card">
+      <h2 id="clientTitle">Espace Client</h2>
+
+      <p id="clientText">
+        Bienvenue dans votre espace client.
+      </p>
+
+      <input
+        type="text"
+        id="clientName"
+        placeholder="Votre nom"
+      >
+
+      <input
+        type="tel"
+        id="clientPhone"
+        placeholder="Votre numéro"
+      >
+
+      <button onclick="clientAction()" id="clientButton">
+        Continuer
+      </button>
+
+      <button class="back" onclick="showPage('home')" id="backClient">
+        Retour
+      </button>
+
+      <div id="clientMessage"></div>
+    </div>
+
+  </section>
+
+
+  <!-- COMMERÇANT -->
+  <section id="merchant" class="hidden">
+
+    <div class="logo">VIRUS</div>
+
+    <div class="card">
+
+      <h2 id="merchantTitle">
+        Espace Commerçant
+      </h2>
+
+      <p id="merchantText">
+        L'accès commerçant nécessite l'approbation du fondateur.
+      </p>
+
+      <input
+        type="text"
+        id="merchantName"
+        placeholder="Nom du commerce"
+      >
+
+      <input
+        type="tel"
+        id="merchantPhone"
+        placeholder="Numéro de téléphone"
+      >
+
+      <button onclick="merchantRequest()" id="merchantButton">
+        Demander l'accès
+      </button>
+
+      <button class="back" onclick="showPage('home')" id="backMerchant">
+        Retour
+      </button>
+
+      <div id="merchantMessage"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- LIVREUR -->
+  <section id="delivery" class="hidden">
+
+    <div class="logo">VIRUS</div>
+
+    <div class="card">
+
+      <h2 id="deliveryTitle">
+        Espace Livreur
+      </h2>
+
+      <p id="deliveryText">
+        L'accès livreur nécessite l'approbation du fondateur.
+      </p>
+
+      <input
+        type="text"
+        id="deliveryName"
+        placeholder="Votre nom"
+      >
+
+      <input
+        type="tel"
+        id="deliveryPhone"
+        placeholder="Votre numéro de téléphone"
+      >
+
+      <button onclick="deliveryRequest()" id="deliveryButton">
+        Demander l'accès
+      </button>
+
+      <button class="back" onclick="showPage('home')" id="backDelivery">
+        Retour
+      </button>
+
+      <div id="deliveryMessage"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- FONDATEUR -->
+  <section id="founder" class="hidden">
+
+    <div class="logo">VIRUS</div>
+
+    <div class="card">
+
+      <h2 id="founderTitle">
+        Espace Fondateur
+      </h2>
+
+      <p id="founderText">
+        Administration de VIRUS
+      </p>
+
+      <input
+        type="password"
+        id="founderPassword"
+        placeholder="Mot de passe"
+      >
+
+      <button onclick="founderLogin()" id="founderButton">
+        Se connecter
+      </button>
+
+      <button class="back" onclick="showPage('home')" id="backFounder">
+        Retour
+      </button>
+
+      <div id="founderMessage"></div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<script>
+
+  let currentLanguage = "fr";
+
+
+  function showPage(page) {
+
+    const pages = [
+      "home",
+      "client",
+      "merchant",
+      "delivery",
+      "founder"
+    ];
+
+    pages.forEach(function(id) {
+      document.getElementById(id).classList.add("hidden");
+    });
+
+    document.getElementById(page).classList.remove("hidden");
+
+    window.scrollTo(0, 0);
+  }
+
+
+  function clientAction() {
+
+    const name = document.getElementById("clientName").value;
+
+    if (name.trim() === "") {
+
+      document.getElementById("clientMessage").innerHTML =
+        '<div class="message">Veuillez entrer votre nom.</div>';
+
+      return;
+    }
+
+    document.getElementById("clientMessage").innerHTML =
+      '<div class="message">Bienvenue ' + name + ' !</div>';
+  }
+
+
+  function merchantRequest() {
+
+    const name =
+      document.getElementById("merchantName").value;
+
+    if (name.trim() === "") {
+
+      document.getElementById("merchantMessage").innerHTML =
+        '<div class="message">Veuillez entrer le nom du commerce.</div>';
+
+      return;
+    }
+
+    document.getElementById("merchantMessage").innerHTML =
+      '<div class="message">Votre demande a été enregistrée. Elle devra être approuvée par le fondateur.</div>';
+  }
+
+
+  function deliveryRequest() {
+
+    const name =
+      document.getElementById("deliveryName").value;
+
+    if (name.trim() === "") {
+
+      document.getElementById("deliveryMessage").innerHTML =
+        '<div class="message">Veuillez entrer votre nom.</div>';
+
+      return;
+    }
+
+    document.getElementById("deliveryMessage").innerHTML =
+      '<div class="message">Votre demande a été enregistrée. Elle devra être approuvée par le fondateur.</div>';
+  }
+
+
+  function founderLogin() {
+
+    const password =
+      document.getElementById("founderPassword").value;
+
+    /*
+      IMPORTANT :
+      Ceci est seulement une démonstration.
+      Le vrai système d'administration devra utiliser
+      une authentification sécurisée côté serveur.
+    */
+
+    if (password === "VIRUS2026") {
+
+      document.getElementById("founderMessage").innerHTML =
+        '<div class="message">Bienvenue dans l’administration de VIRUS.</div>';
+
+    } else {
+
+      document.getElementById("founderMessage").innerHTML =
+        '<div class="message">Mot de passe incorrect.</div>';
+    }
+  }
+
+
+  function setLanguage(language) {
+
+    currentLanguage = language;
+
+    if (language === "en") {
+
+      document.getElementById("welcome").innerText =
+        "Welcome to VIRUS";
+
+      document.getElementById("choose").innerText =
+        "Choose your space";
+
+      document.getElementById("languageTitle").innerText =
+        "Language";
+
+      document.getElementById("clientTitle").innerText =
+        "Customer Space";
+
+      document.getElementById("merchantTitle").innerText =
+        "Merchant Space";
+
+      document.getElementById("deliveryTitle").innerText =
+        "Delivery Driver Space";
+
+      document.getElementById("founderTitle").innerText =
+        "Founder Space";
+
+    } else {
+
+      document.getElementById("welcome").innerText =
+        "Bienvenue sur VIRUS";
+
+      document.getElementById("choose").innerText =
+        "Choisissez votre espace";
+
+      document.getElementById("languageTitle").innerText =
+        "Langue / Language";
+
+      document.getElementById("clientTitle").innerText =
+        "Espace Client";
+
+      document.getElementById("merchantTitle").innerText =
+        "Espace Commerçant";
+
+      document.getElementById("deliveryTitle").innerText =
+        "Espace Livreur";
+
+      document.getElementById("founderTitle").innerText =
+        "Espace Fondateur";
+    }
+  }
+
+</script>
+
+</body>
+</html>
