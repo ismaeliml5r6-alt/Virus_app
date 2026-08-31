@@ -3,130 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>VIRUS</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
 }
 
-body {
-  background: #000;
-  color: #fff;
-  min-height: 100vh;
+body{
+  background:#000;
+  color:#fff;
+  min-height:100vh;
 }
 
-.container {
-  max-width: 520px;
-  margin: auto;
-  padding: 25px;
+.container{
+  max-width:520px;
+  margin:auto;
+  padding:20px;
 }
 
-.logo {
-  text-align: center;
-  font-size: 42px;
-  font-weight: bold;
-  letter-spacing: 6px;
-  margin: 30px 0 10px;
+.logo{
+  text-align:center;
+  font-size:42px;
+  font-weight:bold;
+  letter-spacing:6px;
+  margin:30px 0 10px;
 }
 
-.subtitle {
-  text-align: center;
-  color: #ccc;
-  margin-bottom: 30px;
+.subtitle{
+  text-align:center;
+  color:#ccc;
+  margin-bottom:25px;
 }
 
-.card {
-  background: #fff;
-  color: #000;
-  border-radius: 18px;
-  padding: 25px;
-  margin-bottom: 18px;
+.card{
+  background:#fff;
+  color:#000;
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:18px;
 }
 
-h2 {
-  margin-bottom: 15px;
+h2,h3{
+  margin-bottom:15px;
 }
 
-p {
-  margin-bottom: 15px;
-  line-height: 1.5;
+p{
+  line-height:1.5;
+  margin-bottom:12px;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: 0;
-  border-radius: 10px;
-  background: #000;
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
+button{
+  width:100%;
+  padding:14px;
+  margin-top:9px;
+  border:0;
+  border-radius:10px;
+  background:#000;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
 }
 
-button:active {
-  transform: scale(.98);
+.back{
+  background:#555;
 }
 
-.back {
-  background: #555;
+input{
+  width:100%;
+  padding:14px;
+  margin:7px 0;
+  border:1px solid #aaa;
+  border-radius:9px;
+  font-size:15px;
 }
 
-input {
-  width: 100%;
-  padding: 14px;
-  margin: 7px 0;
-  border: 1px solid #aaa;
-  border-radius: 9px;
-  font-size: 15px;
+.hidden{
+  display:none;
 }
 
-.hidden {
-  display: none;
+.message{
+  margin-top:15px;
+  padding:12px;
+  border-radius:9px;
+  background:#eee;
+  color:#000;
 }
 
-.message {
-  margin-top: 15px;
-  padding: 12px;
-  border-radius: 9px;
-  background: #eee;
+.request{
+  border:1px solid #aaa;
+  padding:15px;
+  border-radius:10px;
+  margin-top:12px;
 }
 
-.request {
-  border: 1px solid #aaa;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 12px;
+.counter{
+  font-size:28px;
+  font-weight:bold;
+  margin:8px 0 18px;
 }
 
-.request button {
-  width: 48%;
-  display: inline-block;
-}
-
-.approve {
-  background: #000;
-}
-
-.reject {
-  background: #777;
-}
-
-.counter {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
-footer {
-  text-align: center;
-  color: #777;
-  margin-top: 30px;
-  font-size: 13px;
+footer{
+  text-align:center;
+  color:#777;
+  margin-top:30px;
+  font-size:13px;
 }
 </style>
 </head>
@@ -137,130 +124,293 @@ footer {
 
 <!-- ACCUEIL -->
 <section id="home">
-  <div class="logo">VIRUS</div>
-  <div class="subtitle" id="welcome">Bienvenue sur VIRUS</div>
 
-  <div class="card">
-    <h2 id="choose">Choisissez votre espace</h2>
+<div class="logo">VIRUS</div>
 
-    <button onclick="showPage('client')">👤 Client</button>
-    <button onclick="showPage('merchant')">🏪 Commerçant</button>
-    <button onclick="showPage('delivery')">🚴 Livreur</button>
-    <button onclick="showPage('founder')">👑 Fondateur</button>
-  </div>
+<div class="subtitle" id="welcome">
+Bienvenue sur VIRUS
+</div>
 
-  <div class="card">
-    <h3>Langue / Language</h3>
-    <button onclick="changeLanguage('fr')">🇫🇷 Français</button>
-    <button onclick="changeLanguage('en')">🇬🇧 English</button>
-  </div>
+<div class="card">
 
-  <footer>VIRUS © 2026</footer>
+<h2 id="choose">
+Choisissez votre espace
+</h2>
+
+<button onclick="showPage('client')">
+👤 Client
+</button>
+
+<button onclick="showPage('merchant')">
+🏪 Commerçant
+</button>
+
+<button onclick="showPage('delivery')">
+🚴 Livreur
+</button>
+
+<button onclick="showPage('founder')">
+👑 Fondateur
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>Langue / Language</h3>
+
+<button onclick="changeLanguage('fr')">
+🇫🇷 Français
+</button>
+
+<button onclick="changeLanguage('en')">
+🇬🇧 English
+</button>
+
+</div>
+
+<footer>
+VIRUS © 2026
+</footer>
+
 </section>
 
 
 <!-- CLIENT -->
 <section id="client" class="hidden">
-  <div class="logo">VIRUS</div>
 
-  <div class="card">
-    <h2>Espace Client</h2>
-    <p>Bienvenue dans votre espace client.</p>
+<div class="logo">VIRUS</div>
 
-    <input id="clientName" placeholder="Votre nom">
-    <input id="clientPhone" placeholder="Votre numéro">
+<div class="card">
 
-    <button onclick="clientRequest()">Continuer</button>
-    <button class="back" onclick="showPage('home')">Retour</button>
+<h2>👤 Espace Client</h2>
 
-    <div id="clientMessage"></div>
-  </div>
+<input
+id="clientName"
+placeholder="Votre nom">
+
+<input
+id="clientPhone"
+placeholder="Votre numéro">
+
+<button onclick="clientRequest()">
+Continuer
+</button>
+
+<button
+class="back"
+onclick="showPage('home')">
+Retour
+</button>
+
+<div id="clientMessage"></div>
+
+</div>
+
 </section>
 
 
 <!-- COMMERÇANT -->
 <section id="merchant" class="hidden">
-  <div class="logo">VIRUS</div>
 
-  <div class="card">
-    <h2>Espace Commerçant</h2>
+<div class="logo">VIRUS</div>
 
-    <p>
-      Créez votre demande d'accès.
-      Le fondateur devra l'approuver.
-    </p>
+<div class="card">
 
-    <input id="merchantName" placeholder="Nom du commerce">
-    <input id="merchantPhone" placeholder="Numéro">
+<h2>🏪 Espace Commerçant</h2>
 
-    <button onclick="addMerchant()">Envoyer la demande</button>
-    <button class="back" onclick="showPage('home')">Retour</button>
+<p>
+Envoyez votre demande d'accès.
+Le Fondateur devra l'approuver.
+</p>
 
-    <div id="merchantMessage"></div>
-  </div>
+<input
+id="merchantName"
+placeholder="Nom du commerce">
+
+<input
+id="merchantPhone"
+placeholder="Numéro">
+
+<button onclick="addMerchant()">
+Envoyer la demande
+</button>
+
+<button
+class="back"
+onclick="showPage('home')">
+Retour
+</button>
+
+<div id="merchantMessage"></div>
+
+</div>
+
 </section>
 
 
 <!-- LIVREUR -->
 <section id="delivery" class="hidden">
-  <div class="logo">VIRUS</div>
 
-  <div class="card">
-    <h2>Espace Livreur</h2>
+<div class="logo">VIRUS</div>
 
-    <p>
-      Créez votre demande d'accès.
-      Le fondateur devra l'approuver.
-    </p>
+<div class="card">
 
-    <input id="deliveryName" placeholder="Votre nom">
-    <input id="deliveryPhone" placeholder="Votre numéro">
+<h2>🚴 Espace Livreur</h2>
 
-    <button onclick="addDelivery()">Envoyer la demande</button>
-    <button class="back" onclick="showPage('home')">Retour</button>
+<p>
+Envoyez votre demande d'accès.
+Le Fondateur devra l'approuver.
+</p>
 
-    <div id="deliveryMessage"></div>
-  </div>
+<input
+id="deliveryName"
+placeholder="Votre nom">
+
+<input
+id="deliveryPhone"
+placeholder="Votre numéro">
+
+<button onclick="addDelivery()">
+Envoyer la demande
+</button>
+
+<button
+class="back"
+onclick="showPage('home')">
+Retour
+</button>
+
+<div id="deliveryMessage"></div>
+
+</div>
+
 </section>
 
 
 <!-- FONDATEUR -->
 <section id="founder" class="hidden">
-  <div class="logo">VIRUS</div>
 
-  <div class="card">
+<div class="logo">VIRUS</div>
 
-    <h2>👑 Tableau de bord Fondateur</h2>
+<div class="card">
 
-    <p>
-      Gestion des demandes d'accès.
-    </p>
+<h2>👑 Fondateur VIRUS</h2>
 
-    <div>
-      <strong>Commerçants</strong>
-      <div class="counter" id="merchantCount">0</div>
-    </div>
+<div id="founderLogin">
 
-    <div>
-      <strong>Livreurs</strong>
-      <div class="counter" id="deliveryCount">0</div>
-    </div>
+<p>
+Connexion réservée au Fondateur.
+</p>
 
-    <h3>Demandes commerçants</h3>
-    <div id="merchantRequests">
-      <p>Aucune demande.</p>
-    </div>
+<input
+id="founderEmail"
+type="email"
+placeholder="Adresse e-mail">
 
-    <h3 style="margin-top:25px;">Demandes livreurs</h3>
-    <div id="deliveryRequests">
-      <p>Aucune demande.</p>
-    </div>
+<input
+id="founderPassword"
+type="password"
+placeholder="Mot de passe">
 
-    <button class="back" onclick="showPage('home')">
-      Retour
-    </button>
+<button onclick="founderLogin()">
+🔐 Se connecter
+</button>
 
-  </div>
+<div id="founderLoginMessage"></div>
+
+</div>
+
+
+<div
+id="founderDashboard"
+class="hidden">
+
+<h3>
+Tableau de bord
+</h3>
+
+<p>
+Gestion des demandes.
+</p>
+
+<strong>
+Commerçants
+</strong>
+
+<div
+class="counter"
+id="merchantCount">
+0
+</div>
+
+<strong>
+Livreurs
+</strong>
+
+<div
+class="counter"
+id="deliveryCount">
+0
+</div>
+
+
+<h3>
+Demandes commerçants
+</h3>
+
+<div id="merchantRequests">
+<p>Aucune demande.</p>
+</div>
+
+
+<h3 style="margin-top:25px;">
+Demandes livreurs
+</h3>
+
+<div id="deliveryRequests">
+<p>Aucune demande.</p>
+</div>
+
+
+<h3 style="margin-top:25px;">
+🔑 Changer le mot de passe
+</h3>
+
+<input
+id="newPassword"
+type="password"
+placeholder="Nouveau mot de passe">
+
+<input
+id="confirmPassword"
+type="password"
+placeholder="Confirmer le mot de passe">
+
+<button onclick="changeFounderPassword()">
+Changer le mot de passe
+</button>
+
+<div id="passwordMessage"></div>
+
+
+<button
+class="back"
+onclick="founderLogout()">
+Déconnexion
+</button>
+
+</div>
+
+
+<button
+class="back"
+onclick="showPage('home')">
+Retour
+</button>
+
+</div>
+
 </section>
 
 </div>
@@ -268,307 +418,840 @@ footer {
 
 <script>
 
-/* =========================
-   DONNÉES DU PROTOTYPE
-   ========================= */
+/* ==========================================
+   SUPABASE
+   ========================================== */
 
-let merchants = [];
-let deliveries = [];
+const SUPABASE_URL =
+"https://xqwboglyrdzikqkjfjir.supabase.co";
+
+/*
+  COLLE ICI TA NOUVELLE PUBLISHABLE KEY
+  Ne mets jamais une secret/service_role key.
+*/
+
+const SUPABASE_KEY =
+"COLLE_TA_NOUVELLE_PUBLISHABLE_KEY_ICI";
 
 
-/* =========================
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+/* ==========================================
    NAVIGATION
-   ========================= */
+   ========================================== */
 
-function showPage(page) {
+function showPage(page){
 
-  const pages = [
-    "home",
-    "client",
-    "merchant",
-    "delivery",
-    "founder"
-  ];
+const pages=[
+"home",
+"client",
+"merchant",
+"delivery",
+"founder"
+];
 
-  pages.forEach(function(id) {
-    document.getElementById(id).classList.add("hidden");
-  });
+pages.forEach(function(id){
 
-  document.getElementById(page).classList.remove("hidden");
+document
+.getElementById(id)
+.classList.add("hidden");
 
-  if (page === "founder") {
-    updateDashboard();
-  }
+});
 
-  window.scrollTo(0, 0);
+document
+.getElementById(page)
+.classList.remove("hidden");
+
+if(page==="founder"){
+checkFounderSession();
+}
+
+window.scrollTo(0,0);
 }
 
 
-/* =========================
+/* ==========================================
    CLIENT
-   ========================= */
+   ========================================== */
 
-function clientRequest() {
+function clientRequest(){
 
-  const name =
-    document.getElementById("clientName").value.trim();
+const name=
+document
+.getElementById("clientName")
+.value
+.trim();
 
-  if (!name) {
-    document.getElementById("clientMessage").innerHTML =
-      '<div class="message">Veuillez entrer votre nom.</div>';
-    return;
-  }
+if(!name){
 
-  document.getElementById("clientMessage").innerHTML =
-    '<div class="message">Bienvenue ' +
-    escapeHTML(name) +
-    ' !</div>';
+document
+.getElementById("clientMessage")
+.innerHTML=
+'<div class="message">Veuillez entrer votre nom.</div>';
+
+return;
+}
+
+document
+.getElementById("clientMessage")
+.innerHTML=
+'<div class="message">Bienvenue '+
+escapeHTML(name)+
+' !</div>';
 }
 
 
-/* =========================
+/* ==========================================
+   UTILISATEUR ANONYME
+   ========================================== */
+
+async function ensureUser(){
+
+const session=
+await supabaseClient
+.auth
+.getSession();
+
+if(session.data.session){
+
+return session
+.data
+.session
+.user;
+
+}
+
+const result=
+await supabaseClient
+.auth
+.signInAnonymously();
+
+if(result.error){
+
+console.error(result.error);
+
+throw result.error;
+}
+
+return result.data.user;
+}
+
+
+/* ==========================================
    COMMERÇANT
-   ========================= */
+   ========================================== */
 
-function addMerchant() {
+async function addMerchant(){
 
-  const name =
-    document.getElementById("merchantName").value.trim();
+const name=
+document
+.getElementById("merchantName")
+.value
+.trim();
 
-  const phone =
-    document.getElementById("merchantPhone").value.trim();
+const phone=
+document
+.getElementById("merchantPhone")
+.value
+.trim();
 
-  if (!name || !phone) {
+if(!name||!phone){
 
-    document.getElementById("merchantMessage").innerHTML =
-      '<div class="message">Veuillez remplir tous les champs.</div>';
+document
+.getElementById("merchantMessage")
+.innerHTML=
+'<div class="message">Veuillez remplir tous les champs.</div>';
 
-    return;
-  }
+return;
+}
 
-  merchants.push({
-    name: name,
-    phone: phone,
-    status: "En attente"
-  });
+try{
 
-  document.getElementById("merchantName").value = "";
-  document.getElementById("merchantPhone").value = "";
+const user=
+await ensureUser();
 
-  document.getElementById("merchantMessage").innerHTML =
-    '<div class="message">✅ Demande envoyée au fondateur.</div>';
 
-  updateDashboard();
+const profile=
+await supabaseClient
+.from("profiles")
+.upsert({
+id:user.id,
+full_name:name,
+phone:phone,
+role:"merchant",
+status:"pending"
+});
+
+if(profile.error)
+throw profile.error;
+
+
+const request=
+await supabaseClient
+.from("access_requests")
+.insert({
+user_id:user.id,
+role:"merchant",
+full_name:name,
+phone:phone,
+status:"pending"
+});
+
+if(request.error)
+throw request.error;
+
+
+document
+.getElementById("merchantName")
+.value="";
+
+document
+.getElementById("merchantPhone")
+.value="";
+
+
+document
+.getElementById("merchantMessage")
+.innerHTML=
+'<div class="message">✅ Demande envoyée au Fondateur.</div>';
+
+}
+catch(error){
+
+console.error(error);
+
+document
+.getElementById("merchantMessage")
+.innerHTML=
+'<div class="message">❌ Erreur lors de l’envoi.</div>';
+}
+
 }
 
 
-/* =========================
+/* ==========================================
    LIVREUR
-   ========================= */
+   ========================================== */
 
-function addDelivery() {
+async function addDelivery(){
 
-  const name =
-    document.getElementById("deliveryName").value.trim();
+const name=
+document
+.getElementById("deliveryName")
+.value
+.trim();
 
-  const phone =
-    document.getElementById("deliveryPhone").value.trim();
+const phone=
+document
+.getElementById("deliveryPhone")
+.value
+.trim();
 
-  if (!name || !phone) {
+if(!name||!phone){
 
-    document.getElementById("deliveryMessage").innerHTML =
-      '<div class="message">Veuillez remplir tous les champs.</div>';
+document
+.getElementById("deliveryMessage")
+.innerHTML=
+'<div class="message">Veuillez remplir tous les champs.</div>';
 
-    return;
-  }
+return;
+}
 
-  deliveries.push({
-    name: name,
-    phone: phone,
-    status: "En attente"
-  });
+try{
 
-  document.getElementById("deliveryName").value = "";
-  document.getElementById("deliveryPhone").value = "";
+const user=
+await ensureUser();
 
-  document.getElementById("deliveryMessage").innerHTML =
-    '<div class="message">✅ Demande envoyée au fondateur.</div>';
 
-  updateDashboard();
+const profile=
+await supabaseClient
+.from("profiles")
+.upsert({
+id:user.id,
+full_name:name,
+phone:phone,
+role:"delivery",
+status:"pending"
+});
+
+if(profile.error)
+throw profile.error;
+
+
+const request=
+await supabaseClient
+.from("access_requests")
+.insert({
+user_id:user.id,
+role:"delivery",
+full_name:name,
+phone:phone,
+status:"pending"
+});
+
+if(request.error)
+throw request.error;
+
+
+document
+.getElementById("deliveryName")
+.value="";
+
+document
+.getElementById("deliveryPhone")
+.value="";
+
+
+document
+.getElementById("deliveryMessage")
+.innerHTML=
+'<div class="message">✅ Demande envoyée au Fondateur.</div>';
+
+}
+catch(error){
+
+console.error(error);
+
+document
+.getElementById("deliveryMessage")
+.innerHTML=
+'<div class="message">❌ Erreur lors de l’envoi.</div>';
+}
+
 }
 
 
-/* =========================
-   TABLEAU DE BORD
-   ========================= */
+/* ==========================================
+   CONNEXION FONDATEUR
+   ========================================== */
 
-function updateDashboard() {
+async function founderLogin(){
 
-  document.getElementById("merchantCount").innerText =
-    merchants.length;
+const email=
+document
+.getElementById("founderEmail")
+.value
+.trim();
 
-  document.getElementById("deliveryCount").innerText =
-    deliveries.length;
-
-
-  let merchantHTML = "";
-
-  if (merchants.length === 0) {
-
-    merchantHTML = "<p>Aucune demande.</p>";
-
-  } else {
-
-    merchants.forEach(function(item, index) {
-
-      merchantHTML += `
-        <div class="request">
-          <strong>${escapeHTML(item.name)}</strong>
-          <p>${escapeHTML(item.phone)}</p>
-          <p>Statut : ${escapeHTML(item.status)}</p>
-
-          <button class="approve"
-            onclick="approveMerchant(${index})">
-            ✅ Approuver
-          </button>
-
-          <button class="reject"
-            onclick="rejectMerchant(${index})">
-            ❌ Refuser
-          </button>
-        </div>
-      `;
-    });
-  }
-
-  document.getElementById("merchantRequests").innerHTML =
-    merchantHTML;
+const password=
+document
+.getElementById("founderPassword")
+.value;
 
 
-  let deliveryHTML = "";
+if(!email||!password){
 
-  if (deliveries.length === 0) {
+document
+.getElementById("founderLoginMessage")
+.innerHTML=
+'<div class="message">Veuillez remplir les deux champs.</div>';
 
-    deliveryHTML = "<p>Aucune demande.</p>";
-
-  } else {
-
-    deliveries.forEach(function(item, index) {
-
-      deliveryHTML += `
-        <div class="request">
-          <strong>${escapeHTML(item.name)}</strong>
-          <p>${escapeHTML(item.phone)}</p>
-          <p>Statut : ${escapeHTML(item.status)}</p>
-
-          <button class="approve"
-            onclick="approveDelivery(${index})">
-            ✅ Approuver
-          </button>
-
-          <button class="reject"
-            onclick="rejectDelivery(${index})">
-            ❌ Refuser
-          </button>
-        </div>
-      `;
-    });
-  }
-
-  document.getElementById("deliveryRequests").innerHTML =
-    deliveryHTML;
+return;
 }
 
 
-/* =========================
-   APPROBATION
-   ========================= */
+const result=
+await supabaseClient
+.auth
+.signInWithPassword({
+email:email,
+password:password
+});
 
-function approveMerchant(index) {
 
-  merchants[index].status = "Approuvé";
+if(result.error){
 
-  updateDashboard();
+document
+.getElementById("founderLoginMessage")
+.innerHTML=
+'<div class="message">❌ Identifiants incorrects.</div>';
+
+return;
 }
 
 
-function rejectMerchant(index) {
+const user=
+result.data.user;
 
-  merchants[index].status = "Refusé";
 
-  updateDashboard();
+const profile=
+await supabaseClient
+.from("profiles")
+.select("role,status")
+.eq("id",user.id)
+.maybeSingle();
+
+
+if(
+profile.error||
+!profile.data||
+profile.data.role!=="founder"||
+profile.data.status!=="approved"
+){
+
+await supabaseClient.auth.signOut();
+
+document
+.getElementById("founderLoginMessage")
+.innerHTML=
+'<div class="message">❌ Compte Fondateur non autorisé.</div>';
+
+return;
 }
 
 
-function approveDelivery(index) {
+document
+.getElementById("founderLogin")
+.classList.add("hidden");
 
-  deliveries[index].status = "Approuvé";
+document
+.getElementById("founderDashboard")
+.classList.remove("hidden");
 
-  updateDashboard();
+
+await updateDashboard();
+
 }
 
 
-function rejectDelivery(index) {
+/* ==========================================
+   VÉRIFICATION SESSION
+   ========================================== */
 
-  deliveries[index].status = "Refusé";
+async function checkFounderSession(){
 
-  updateDashboard();
+const session=
+await supabaseClient
+.auth
+.getSession();
+
+if(!session.data.session){
+
+document
+.getElementById("founderLogin")
+.classList.remove("hidden");
+
+document
+.getElementById("founderDashboard")
+.classList.add("hidden");
+
+return;
 }
 
 
-/* =========================
+const user=
+session.data.session.user;
+
+
+const profile=
+await supabaseClient
+.from("profiles")
+.select("role,status")
+.eq("id",user.id)
+.maybeSingle();
+
+
+if(
+profile.data &&
+profile.data.role==="founder" &&
+profile.data.status==="approved"
+){
+
+document
+.getElementById("founderLogin")
+.classList.add("hidden");
+
+document
+.getElementById("founderDashboard")
+.classList.remove("hidden");
+
+await updateDashboard();
+
+}
+else{
+
+await supabaseClient
+.auth
+.signOut();
+
+}
+
+}
+
+
+/* ==========================================
+   CHARGER LES DEMANDES
+   ========================================== */
+
+async function updateDashboard(){
+
+const result=
+await supabaseClient
+.from("access_requests")
+.select("*")
+.order("created_at",{
+ascending:false
+});
+
+
+if(result.error){
+
+console.error(result.error);
+
+return;
+}
+
+
+const requests=
+result.data||[];
+
+
+const merchants=
+requests.filter(
+item=>item.role==="merchant"
+);
+
+
+const deliveries=
+requests.filter(
+item=>item.role==="delivery"
+);
+
+
+document
+.getElementById("merchantCount")
+.innerText=
+merchants.length;
+
+
+document
+.getElementById("deliveryCount")
+.innerText=
+deliveries.length;
+
+
+renderRequests(
+merchants,
+"merchantRequests"
+);
+
+
+renderRequests(
+deliveries,
+"deliveryRequests"
+);
+
+}
+
+
+/* ==========================================
+   AFFICHER LES DEMANDES
+   ========================================== */
+
+function renderRequests(
+requests,
+elementId
+){
+
+let html="";
+
+
+if(requests.length===0){
+
+html="<p>Aucune demande.</p>";
+
+}
+else{
+
+requests.forEach(function(item){
+
+html+=`
+
+<div class="request">
+
+<strong>
+${escapeHTML(item.full_name)}
+</strong>
+
+<p>
+${escapeHTML(item.phone)}
+</p>
+
+<p>
+Statut :
+${escapeHTML(item.status)}
+</p>
+
+${
+item.status==="pending"
+?
+`
+<button
+onclick="approveRequest('${item.id}')">
+✅ Approuver
+</button>
+
+<button
+onclick="rejectRequest('${item.id}')"
+class="back">
+❌ Refuser
+</button>
+`
+:
+""
+}
+
+</div>
+
+`;
+
+});
+
+}
+
+
+document
+.getElementById(elementId)
+.innerHTML=html;
+
+}
+
+
+/* ==========================================
+   APPROUVER
+   ========================================== */
+
+async function approveRequest(id){
+
+const result=
+await supabaseClient
+.from("access_requests")
+.update({
+status:"approved"
+})
+.eq("id",id);
+
+
+if(result.error){
+
+console.error(result.error);
+
+alert(
+"Impossible d'approuver la demande."
+);
+
+return;
+}
+
+
+await updateDashboard();
+
+}
+
+
+/* ==========================================
+   REFUSER
+   ========================================== */
+
+async function rejectRequest(id){
+
+const result=
+await supabaseClient
+.from("access_requests")
+.update({
+status:"rejected"
+})
+.eq("id",id);
+
+
+if(result.error){
+
+console.error(result.error);
+
+alert(
+"Impossible de refuser la demande."
+);
+
+return;
+}
+
+
+await updateDashboard();
+
+}
+
+
+/* ==========================================
+   MOT DE PASSE
+   ========================================== */
+
+async function changeFounderPassword(){
+
+const password=
+document
+.getElementById("newPassword")
+.value;
+
+const confirmation=
+document
+.getElementById("confirmPassword")
+.value;
+
+
+if(!password||!confirmation){
+
+document
+.getElementById("passwordMessage")
+.innerHTML=
+'<div class="message">Veuillez remplir les deux champs.</div>';
+
+return;
+}
+
+
+if(password!==confirmation){
+
+document
+.getElementById("passwordMessage")
+.innerHTML=
+'<div class="message">❌ Les mots de passe ne correspondent pas.</div>';
+
+return;
+}
+
+
+if(password.length<8){
+
+document
+.getElementById("passwordMessage")
+.innerHTML=
+'<div class="message">❌ Minimum 8 caractères.</div>';
+
+return;
+}
+
+
+const result=
+await supabaseClient
+.auth
+.updateUser({
+password:password
+});
+
+
+if(result.error){
+
+console.error(result.error);
+
+document
+.getElementById("passwordMessage")
+.innerHTML=
+'<div class="message">❌ Impossible de changer le mot de passe.</div>';
+
+return;
+}
+
+
+document
+.getElementById("newPassword")
+.value="";
+
+document
+.getElementById("confirmPassword")
+.value="";
+
+
+document
+.getElementById("passwordMessage")
+.innerHTML=
+'<div class="message">✅ Mot de passe changé.</div>';
+
+}
+
+
+/* ==========================================
+   DÉCONNEXION
+   ========================================== */
+
+async function founderLogout(){
+
+await supabaseClient
+.auth
+.signOut();
+
+document
+.getElementById("founderDashboard")
+.classList.add("hidden");
+
+document
+.getElementById("founderLogin")
+.classList.remove("hidden");
+
+showPage("home");
+
+}
+
+
+/* ==========================================
    LANGUES
-   ========================= */
+   ========================================== */
 
-function changeLanguage(language) {
+function changeLanguage(language){
 
-  if (language === "en") {
+if(language==="en"){
 
-    document.getElementById("welcome").innerText =
-      "Welcome to VIRUS";
+document
+.getElementById("welcome")
+.innerText=
+"Welcome to VIRUS";
 
-    document.getElementById("choose").innerText =
-      "Choose your space";
+document
+.getElementById("choose")
+.innerText=
+"Choose your space";
 
-  } else {
+}
+else{
 
-    document.getElementById("welcome").innerText =
-      "Bienvenue sur VIRUS";
+document
+.getElementById("welcome")
+.innerText=
+"Bienvenue sur VIRUS";
 
-    document.getElementById("choose").innerText =
-      "Choisissez votre espace";
-  }
+document
+.getElementById("choose")
+.innerText=
+"Choisissez votre espace";
+
+}
+
 }
 
 
-/* =========================
-   SÉCURITÉ D'AFFICHAGE
-   ========================= */
+/* ==========================================
+   SÉCURITÉ AFFICHAGE
+   ========================================== */
 
-function escapeHTML(text) {
+function escapeHTML(text){
 
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+return String(text)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
 }
 
 </script>
 
 </body>
-      </html>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </html>
 
-<script>
-const SUPABASE_URL = sb_publishable_2G3ubau6Rss45TiDTO-qDA_sLavOOdg
-const SUPABASE_KEY =sb_publishable_2G3ubau6Rss45TiDTO-qDA_sLavOOdg
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-console.log("VIRUS : connexion Supabase prête");
-</script>
+const SUPABASE_URL =
+"https://xqwboglyrdzikqkjfjir.supabase.co";  
