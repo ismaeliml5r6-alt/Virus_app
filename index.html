@@ -240,25 +240,78 @@ window.scrollTo(0,0);
    SESSION ANONYME
    ===================================== */
 
-async function getUser(){
+async function addRequest(type) {
+  const nameInput = type === "merchant"
+    ? document.getElementById("merchantName")
+    : document.getElementById("deliveryName");
 
-let result =
-await supabaseClient.auth.getSession();
+  const phoneInput = type === "merchant"
+    ? document.getElementById("merchantPhone")
+    : document.getElementById("deliveryPhone");
 
-if(result.data.session){
-return result.data.session.user;
+  const messageBox = type === "merchant"
+    ? document.getElementById("merchantMessage")
+    : document.getElementById("deliveryMessage");
+
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+
+  if (!name || !phone) {
+    messageBox.innerHTML =
+      '<div class="message">Veuillez remplir tous les champs.</div>';
+    return;
+  }
+
+  try {
+    const user = await getUser();
+
+    if (!user) {
+      throw new Error("Utilisateur non connecté");
+    }
+
+    const { error: profileError } = await supabaseClient
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        full_name: name,
+        phone: phone,
+        role: type,
+        status: "pending"
+      });
+
+    if (profileError) {
+      throw profileError;
+    }
+
+    const { error: requestError } = await supabaseClient
+      .from("access_requests")
+      .insert({
+        user_id: user.id,
+        role: type,
+        full_name: name,
+        phone: phone,
+        status: "pending"
+      });
+
+    if (requestError) {
+      throw requestError;
+    }
+
+    messageBox.innerHTML =
+      '<div class="message">✅ Demande envoyée au Fondateur.</div>';
+
+    nameInput.value = "";
+    phoneInput.value = "";
+
+  } catch (error) {
+    console.error("VIRUS :", error);
+
+    messageBox.innerHTML =
+      '<div class="message">❌ ' +
+      escapeHTML(error.message || String(error)) +
+      '</div>';
+  }
 }
-
-result =
-await supabaseClient.auth.signInAnonymously();
-
-if(result.error){
-throw result.error;
-}
-
-return result.data.user;
-}
-
 
 /* =====================================
    DEMANDE COMMERÇANT / LIVREUR
