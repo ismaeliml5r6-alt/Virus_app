@@ -786,6 +786,22 @@ return String(text)
 }
 
 </script>
+<script>
+function showPage(page) {
+  const pages = ["home", "client", "merchant", "delivery", "founder"];
 
+  pages.forEach(function(id) {
+    const element = document.getElementById(id);
+    if (element) element.classList.add("hidden");
+  });
+
+  const selected = document.getElementById(page);
+
+  if (selected) {
+    selected.classList.remove("hidden");
+    window.scrollTo(0, 0);
+  }
+}
+</script>
 </body>
   </html>
