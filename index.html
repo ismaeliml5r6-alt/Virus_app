@@ -1569,6 +1569,30 @@ async function loadMyArticles(){
   showPage('merchant');
   openMerchantSpace();
   }
+  /* =====================================
+   CORRECTION ESPACE COMMERÇANT
+   ===================================== */
+
+function openMerchantPage(){
+
+  showPage("merchant");
+
+  const panel =
+    document.getElementById("merchantPanel");
+
+  const message =
+    document.getElementById("merchantAccessMessage");
+
+  if(panel){
+    panel.classList.remove("hidden");
+  }
+
+  if(message){
+    message.innerHTML =
+      '<div class="message">🏪 Espace Commerçant VIRUS</div>';
+  }
+
+}
 </script>
 
 </body>
