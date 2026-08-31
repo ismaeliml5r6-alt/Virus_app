@@ -238,28 +238,53 @@ Retour
 <h2>🏪 Espace Commerçant</h2>
 
 <p>
-Envoyez votre demande d'accès au Fondateur.
+Publiez vos articles sur VIRUS.
 </p>
 
+<div id="merchantAccessMessage"></div>
+
+<div id="merchantPanel" class="hidden">
+
+<h3>➕ Publier un article</h3>
+
 <input
-id="merchantName"
-placeholder="Nom du commerce"
+id="articleName"
+placeholder="Nom de l'article"
 >
 
 <input
-id="merchantPhone"
-placeholder="Numéro"
+id="articlePrice"
+type="number"
+placeholder="Prix en FCFA"
 >
 
-<button id="merchantButton" onclick="addRequest('merchant')">
-Envoyer la demande
+<input
+id="articleDescription"
+placeholder="Description de l'article"
+>
+
+<button onclick="publishArticle()">
+📦 Publier l'article
 </button>
 
-<button class="back" onclick="showPage('home')">
+<div id="articleMessage"></div>
+
+<h3 style="margin-top:25px;">
+Mes articles
+</h3>
+
+<div id="myArticles">
+<p>Aucun article.</p>
+</div>
+
+</div>
+
+<button
+class="back"
+onclick="showPage('home')"
+>
 Retour
 </button>
-
-<div id="merchantMessage"></div>
 
 </div>
 
@@ -1359,6 +1384,187 @@ async function checkMerchantAccess(){
     return false;
   }
       }
+  async function openMerchantSpace(){
+
+  const messageBox =
+    document.getElementById("merchantAccessMessage");
+
+  const panel =
+    document.getElementById("merchantPanel");
+
+  try{
+
+    const user = await getUser();
+
+    const result =
+      await supabaseClient
+      .from("profiles")
+      .select("role,status")
+      .eq("id",user.id)
+      .maybeSingle();
+
+    if(result.error){
+      throw result.error;
+    }
+
+    if(
+      !result.data ||
+      result.data.role !== "merchant" ||
+      result.data.status !== "approved"
+    ){
+
+      panel.classList.add("hidden");
+
+      messageBox.innerHTML =
+        '<div class="message">⏳ Votre compte commerçant doit être approuvé par le Fondateur.</div>';
+
+      return;
+    }
+
+    panel.classList.remove("hidden");
+
+    messageBox.innerHTML =
+      '<div class="message">✅ Compte commerçant approuvé.</div>';
+
+    loadMyArticles();
+
+  }
+  catch(error){
+
+    messageBox.innerHTML =
+      '<div class="message">❌ '+escapeHTML(error.message)+'</div>';
+
+  }
+
+}
+
+
+async function publishArticle(){
+
+  const name =
+    document.getElementById("articleName")
+    .value.trim();
+
+  const price =
+    document.getElementById("articlePrice")
+    .value;
+
+  const description =
+    document.getElementById("articleDescription")
+    .value.trim();
+
+  const message =
+    document.getElementById("articleMessage");
+
+  if(!name || !price){
+
+    message.innerHTML =
+      '<div class="message">Veuillez entrer le nom et le prix.</div>';
+
+    return;
+  }
+
+  try{
+
+    const user = await getUser();
+
+    const result =
+      await supabaseClient
+      .from("articles_virus")
+      .insert({
+        commercant_id:user.id,
+        nom:name,
+        prix:Number(price),
+        description:description
+      });
+
+    if(result.error){
+      throw result.error;
+    }
+
+    message.innerHTML =
+      '<div class="message">✅ Article publié.</div>';
+
+    document.getElementById("articleName").value="";
+    document.getElementById("articlePrice").value="";
+    document.getElementById("articleDescription").value="";
+
+    loadMyArticles();
+
+  }
+  catch(error){
+
+    message.innerHTML =
+      '<div class="message">❌ '+escapeHTML(error.message)+'</div>';
+
+  }
+
+}
+
+
+async function loadMyArticles(){
+
+  const container =
+    document.getElementById("myArticles");
+
+  try{
+
+    const user = await getUser();
+
+    const result =
+      await supabaseClient
+      .from("articles_virus")
+      .select("*")
+      .eq("commercant_id",user.id)
+      .order("created_at",{ascending:false});
+
+    if(result.error){
+      throw result.error;
+    }
+
+    if(!result.data || result.data.length===0){
+
+      container.innerHTML =
+        "<p>Aucun article.</p>";
+
+      return;
+    }
+
+    let html="";
+
+    result.data.forEach(function(article){
+
+      html += `
+      <div class="request">
+
+        <strong>
+        ${escapeHTML(article.nom || "")}
+        </strong>
+
+        <p>
+        💰 ${escapeHTML(article.prix || 0)} FCFA
+        </p>
+
+        <p>
+        ${escapeHTML(article.description || "")}
+        </p>
+
+      </div>
+      `;
+
+    });
+
+    container.innerHTML=html;
+
+  }
+  catch(error){
+
+    container.innerHTML =
+      '<div class="message">❌ '+escapeHTML(error.message)+'</div>';
+
+  }
+
+  }
 </script>
 
 </body>
