@@ -1298,7 +1298,67 @@ return String(text)
 .replace(/'/g,"&#039;");
 
 }
+async function checkMerchantAccess(){
 
+  const messageBox =
+    document.getElementById("merchantMessage");
+
+  try{
+
+    const user = await getUser();
+
+    const result =
+      await supabaseClient
+      .from("profiles")
+      .select("role,status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if(result.error){
+      throw result.error;
+    }
+
+    if(
+      !result.data ||
+      result.data.role !== "merchant"
+    ){
+
+      showMessage(
+        messageBox,
+        "⏳ Votre demande doit être approuvée par le Fondateur."
+      );
+
+      return false;
+    }
+
+    if(result.data.status !== "approved"){
+
+      showMessage(
+        messageBox,
+        "⏳ Votre demande est encore en attente d'approbation."
+      );
+
+      return false;
+    }
+
+    showMessage(
+      messageBox,
+      "✅ Accès commerçant approuvé."
+    );
+
+    return true;
+
+  }
+  catch(error){
+
+    showMessage(
+      messageBox,
+      "❌ "+error.message
+    );
+
+    return false;
+  }
+      }
 </script>
 
 </body>
