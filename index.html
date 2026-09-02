@@ -71,6 +71,11 @@ button{
   cursor:pointer;
 }
 
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
 button:active{
   transform:scale(.98);
 }
@@ -151,7 +156,7 @@ Choisissez votre espace
 👤 Client
 </button>
 
-<button onclick="showPage('merchant')">
+<button onclick="openMerchantPage()">
 🏪 Commerçant
 </button>
 
@@ -216,11 +221,11 @@ placeholder="Votre numéro"
 Continuer
 </button>
 
+<div id="clientMessage"></div>
+
 <button class="back" onclick="showPage('home')">
 Retour
 </button>
-
-<div id="clientMessage"></div>
 
 </div>
 
@@ -279,10 +284,7 @@ Mes articles
 
 </div>
 
-<button
-class="back"
-onclick="showPage('home')"
->
+<button class="back" onclick="showPage('home')">
 Retour
 </button>
 
@@ -319,11 +321,11 @@ placeholder="Votre numéro"
 Envoyer la demande
 </button>
 
+<div id="deliveryMessage"></div>
+
 <button class="back" onclick="showPage('home')">
 Retour
 </button>
-
-<div id="deliveryMessage"></div>
 
 </div>
 
@@ -381,10 +383,7 @@ Gestion des demandes d'accès.
 🏪 Commerçants
 </strong>
 
-<div
-class="counter"
-id="merchantCount"
->
+<div class="counter" id="merchantCount">
 0
 </div>
 
@@ -392,13 +391,9 @@ id="merchantCount"
 🚴 Livreurs
 </strong>
 
-<div
-class="counter"
-id="deliveryCount"
->
+<div class="counter" id="deliveryCount">
 0
 </div>
-
 
 <h3>
 Demandes commerçants
@@ -408,7 +403,6 @@ Demandes commerçants
 <p>Aucune demande.</p>
 </div>
 
-
 <h3 style="margin-top:25px;">
 Demandes livreurs
 </h3>
@@ -417,21 +411,13 @@ Demandes livreurs
 <p>Aucune demande.</p>
 </div>
 
-
-<button
-class="back"
-onclick="logoutFounder()"
->
+<button class="back" onclick="logoutFounder()">
 Déconnexion
 </button>
 
 </div>
 
-
-<button
-class="back"
-onclick="showPage('home')"
->
+<button class="back" onclick="showPage('home')">
 Retour
 </button>
 
@@ -445,26 +431,19 @@ Retour
 <script>
 
 /* =========================================
-   CONFIGURATION SUPABASE
+   SUPABASE
    ========================================= */
 
 const SUPABASE_URL =
 "https://xqwboglyrdzikqkjfjir.supabase.co";
 
-/*
-   IMPORTANT :
-   Remplace uniquement la valeur ci-dessous
-   par TA NOUVELLE PUBLISHABLE KEY.
-*/
-
 const SUPABASE_KEY =
 "sb_publishable_2G3ubau6Rss45TiDTO-qDA_sLavOOdg";
 
-
 const supabaseClient =
 window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
+  SUPABASE_URL,
+  SUPABASE_KEY
 );
 
 
@@ -474,107 +453,88 @@ SUPABASE_KEY
 
 function showPage(page){
 
-const pages=[
-"home",
-"client",
-"merchant",
-"delivery",
-"founder"
-];
+  const pages = [
+    "home",
+    "client",
+    "merchant",
+    "delivery",
+    "founder"
+  ];
 
-pages.forEach(function(id){
+  pages.forEach(function(id){
 
-const element=
-document.getElementById(id);
+    const element =
+      document.getElementById(id);
 
-if(element){
-element.classList.add("hidden");
-}
+    if(element){
+      element.classList.add("hidden");
+    }
 
-});
+  });
 
+  const selected =
+    document.getElementById(page);
 
-const selected=
-document.getElementById(page);
+  if(selected){
+    selected.classList.remove("hidden");
+  }
 
-if(selected){
+  window.scrollTo(0,0);
 
-selected.classList.remove("hidden");
-
-}
-
-
-window.scrollTo(0,0);
-
-
-if(page==="founder"){
-
-checkFounder();
-
-}
+  if(page === "founder"){
+    checkFounder();
+  }
 
 }
 
 
 /* =========================================
-   UTILITAIRE MESSAGE
+   MESSAGE
    ========================================= */
 
 function showMessage(element,message){
 
-element.innerHTML=
-'<div class="message">'+
-escapeHTML(message)+
-'</div>';
+  if(!element) return;
+
+  element.innerHTML =
+    '<div class="message">' +
+    escapeHTML(message) +
+    '</div>';
 
 }
 
 
 /* =========================================
-   SESSION ANONYME
+   SESSION
    ========================================= */
 
 async function getUser(){
 
-const sessionResult=
-await supabaseClient.auth.getSession();
+  const sessionResult =
+    await supabaseClient.auth.getSession();
 
-if(sessionResult.error){
+  if(sessionResult.error){
+    throw sessionResult.error;
+  }
 
-throw sessionResult.error;
+  if(sessionResult.data.session){
+    return sessionResult.data.session.user;
+  }
 
-}
+  const loginResult =
+    await supabaseClient.auth.signInAnonymously();
 
+  if(loginResult.error){
+    throw loginResult.error;
+  }
 
-if(sessionResult.data.session){
+  if(!loginResult.data.user){
+    throw new Error(
+      "Impossible de créer la session utilisateur."
+    );
+  }
 
-return sessionResult.data.session.user;
-
-}
-
-
-const loginResult=
-await supabaseClient.auth.signInAnonymously();
-
-
-if(loginResult.error){
-
-throw loginResult.error;
-
-}
-
-
-if(!loginResult.data.user){
-
-throw new Error(
-"Impossible de créer la session utilisateur."
-);
-
-}
-
-
-return loginResult.data.user;
-
+  return loginResult.data.user;
 }
 
 
@@ -584,166 +544,144 @@ return loginResult.data.user;
 
 async function addRequest(type){
 
-const isMerchant=
-type==="merchant";
+  const isMerchant =
+    type === "merchant";
 
+  const nameInput =
+    document.getElementById(
+      isMerchant
+      ? "merchantName"
+      : "deliveryName"
+    );
 
-const nameInput=
-document.getElementById(
-isMerchant
-?"merchantName"
-:"deliveryName"
-);
+  const phoneInput =
+    document.getElementById(
+      isMerchant
+      ? "merchantPhone"
+      : "deliveryPhone"
+    );
 
+  const messageBox =
+    document.getElementById(
+      isMerchant
+      ? "merchantMessage"
+      : "deliveryMessage"
+    );
 
-const phoneInput=
-document.getElementById(
-isMerchant
-?"merchantPhone"
-:"deliveryPhone"
-);
+  const button =
+    document.getElementById(
+      isMerchant
+      ? "merchantButton"
+      : "deliveryButton"
+    );
 
+  if(!nameInput || !phoneInput || !messageBox || !button){
+    return;
+  }
 
-const messageBox=
-document.getElementById(
-isMerchant
-?"merchantMessage"
-:"deliveryMessage"
-);
+  const name =
+    nameInput.value.trim();
 
+  const phone =
+    phoneInput.value.trim();
 
-const button=
-document.getElementById(
-isMerchant
-?"merchantButton"
-:"deliveryButton"
-);
+  if(!name || !phone){
 
+    showMessage(
+      messageBox,
+      "Veuillez remplir tous les champs."
+    );
 
-const name=
-nameInput.value.trim();
+    return;
+  }
 
+  button.disabled = true;
 
-const phone=
-phoneInput.value.trim();
+  button.innerText =
+    "Envoi en cours...";
 
+  try{
 
-if(!name || !phone){
+    const user =
+      await getUser();
 
-showMessage(
-messageBox,
-"Veuillez remplir tous les champs."
-);
+    const profileResult =
+      await supabaseClient
+      .from("profiles")
+      .upsert(
+        {
+          id:user.id,
+          full_name:name,
+          phone:phone,
+          role:type,
+          status:"pending"
+        },
+        {
+          onConflict:"id"
+        }
+      );
 
-return;
+    if(profileResult.error){
+      throw new Error(
+        "Profil : " +
+        profileResult.error.message
+      );
+    }
 
-}
+    const requestResult =
+      await supabaseClient
+      .from("access_requests")
+      .insert(
+        {
+          user_id:user.id,
+          role:type,
+          full_name:name,
+          phone:phone,
+          status:"pending"
+        }
+      );
 
+    if(requestResult.error){
+      throw new Error(
+        "Demande : " +
+        requestResult.error.message
+      );
+    }
 
-button.disabled=true;
+    showMessage(
+      messageBox,
+      "✅ Demande envoyée au Fondateur."
+    );
 
-button.innerText="Envoi en cours...";
+    nameInput.value = "";
+    phoneInput.value = "";
 
+  }
+  catch(error){
 
-try{
+    console.error(
+      "ERREUR VIRUS :",
+      error
+    );
 
-const user=
-await getUser();
+    showMessage(
+      messageBox,
+      "❌ " +
+      (
+        error.message ||
+        String(error)
+      )
+    );
 
+  }
+  finally{
 
-/* ---------- PROFIL ---------- */
+    button.disabled = false;
 
-const profileResult=
-await supabaseClient
-.from("profiles")
-.upsert(
-{
-id:user.id,
-full_name:name,
-phone:phone,
-role:type,
-status:"pending"
-},
-{
-onConflict:"id"
-}
-);
+    button.innerText =
+      "Envoyer la demande";
 
-
-if(profileResult.error){
-
-throw new Error(
-"Profil : "+
-profileResult.error.message
-);
-
-}
-
-
-/* ---------- DEMANDE ---------- */
-
-const requestResult=
-await supabaseClient
-.from("access_requests")
-.insert(
-{
-user_id:user.id,
-role:type,
-full_name:name,
-phone:phone,
-status:"pending"
-}
-);
-
-
-if(requestResult.error){
-
-throw new Error(
-"Demande : "+
-requestResult.error.message
-);
-
-}
-
-
-/* ---------- SUCCÈS ---------- */
-
-showMessage(
-messageBox,
-"✅ Demande envoyée au Fondateur."
-);
-
-
-nameInput.value="";
-phoneInput.value="";
-
-
-}
-catch(error){
-
-console.error(
-"ERREUR VIRUS :",
-error
-);
-
-
-showMessage(
-messageBox,
-"❌ "+(
-error.message ||
-String(error)
-)
-);
-
-}
-finally{
-
-button.disabled=false;
-
-button.innerText=
-"Envoyer la demande";
-
-}
+  }
 
 }
 
@@ -754,148 +692,133 @@ button.innerText=
 
 function clientRequest(){
 
-const name=
-document
-.getElementById("clientName")
-.value
-.trim();
+  const name =
+    document
+    .getElementById("clientName")
+    .value
+    .trim();
 
+  const message =
+    document.getElementById(
+      "clientMessage"
+    );
 
-if(!name){
+  if(!name){
 
-showMessage(
-document.getElementById("clientMessage"),
-"Veuillez entrer votre nom."
-);
+    showMessage(
+      message,
+      "Veuillez entrer votre nom."
+    );
 
-return;
+    return;
+  }
 
-}
-
-
-showMessage(
-document.getElementById("clientMessage"),
-"Bienvenue "+name+" !"
-);
+  showMessage(
+    message,
+    "Bienvenue " + name + " !"
+  );
 
 }
 
 
 /* =========================================
-   CONNEXION FONDATEUR
+   FONDATEUR
    ========================================= */
 
 async function loginFounder(){
 
-const email=
-document
-.getElementById("founderEmail")
-.value
-.trim();
+  const email =
+    document
+    .getElementById("founderEmail")
+    .value
+    .trim();
 
+  const password =
+    document
+    .getElementById("founderPassword")
+    .value;
 
-const password=
-document
-.getElementById("founderPassword")
-.value;
+  const message =
+    document
+    .getElementById("loginMessage");
 
+  if(!email || !password){
 
-const message=
-document
-.getElementById("loginMessage");
+    showMessage(
+      message,
+      "Veuillez remplir l'e-mail et le mot de passe."
+    );
 
+    return;
+  }
 
-if(!email || !password){
+  try{
 
-showMessage(
-message,
-"Veuillez remplir l'e-mail et le mot de passe."
-);
+    const result =
+      await supabaseClient.auth.signInWithPassword(
+        {
+          email:email,
+          password:password
+        }
+      );
 
-return;
+    if(result.error){
+      throw result.error;
+    }
 
-}
+    const user =
+      result.data.user;
 
+    const profileResult =
+      await supabaseClient
+      .from("profiles")
+      .select("role,status")
+      .eq("id",user.id)
+      .maybeSingle();
 
-try{
+    if(profileResult.error){
+      throw profileResult.error;
+    }
 
-const result=
-await supabaseClient.auth.signInWithPassword(
-{
-email:email,
-password:password
-}
-);
+    if(
+      !profileResult.data ||
+      profileResult.data.role !== "founder" ||
+      profileResult.data.status !== "approved"
+    ){
 
+      await supabaseClient.auth.signOut();
 
-if(result.error){
+      throw new Error(
+        "Ce compte n'est pas autorisé comme Fondateur."
+      );
 
-throw result.error;
+    }
 
-}
+    document
+    .getElementById("loginBox")
+    .classList.add("hidden");
 
+    document
+    .getElementById("dashboard")
+    .classList.remove("hidden");
 
-const user=
-result.data.user;
+    await loadRequests();
 
+  }
+  catch(error){
 
-const profileResult=
-await supabaseClient
-.from("profiles")
-.select("role,status")
-.eq("id",user.id)
-.maybeSingle();
+    console.error(error);
 
+    showMessage(
+      message,
+      "❌ " +
+      (
+        error.message ||
+        "Connexion impossible."
+      )
+    );
 
-if(profileResult.error){
-
-throw profileResult.error;
-
-}
-
-
-if(
-!profileResult.data ||
-profileResult.data.role!=="founder" ||
-profileResult.data.status!=="approved"
-){
-
-await supabaseClient.auth.signOut();
-
-throw new Error(
-"Ce compte n'est pas autorisé comme Fondateur."
-);
-
-}
-
-
-document
-.getElementById("loginBox")
-.classList.add("hidden");
-
-
-document
-.getElementById("dashboard")
-.classList.remove("hidden");
-
-
-await loadRequests();
-
-
-}
-catch(error){
-
-console.error(error);
-
-showMessage(
-message,
-"❌ "+(
-error.message ||
-"Connexion impossible."
-)
-);
-
-}
+  }
 
 }
 
@@ -906,219 +829,194 @@ error.message ||
 
 async function checkFounder(){
 
-const sessionResult=
-await supabaseClient.auth.getSession();
+  const sessionResult =
+    await supabaseClient.auth.getSession();
 
+  if(
+    sessionResult.error ||
+    !sessionResult.data.session
+  ){
 
-if(
-sessionResult.error ||
-!sessionResult.data.session
-){
+    document
+    .getElementById("loginBox")
+    .classList.remove("hidden");
 
-document
-.getElementById("loginBox")
-.classList.remove("hidden");
+    document
+    .getElementById("dashboard")
+    .classList.add("hidden");
 
+    return;
+  }
 
-document
-.getElementById("dashboard")
-.classList.add("hidden");
+  const user =
+    sessionResult.data.session.user;
 
+  const profileResult =
+    await supabaseClient
+    .from("profiles")
+    .select("role,status")
+    .eq("id",user.id)
+    .maybeSingle();
 
-return;
+  if(
+    profileResult.data &&
+    profileResult.data.role === "founder" &&
+    profileResult.data.status === "approved"
+  ){
 
-}
+    document
+    .getElementById("loginBox")
+    .classList.add("hidden");
 
+    document
+    .getElementById("dashboard")
+    .classList.remove("hidden");
 
-const user=
-sessionResult.data.session.user;
+    await loadRequests();
 
+  }
+  else{
 
-const profileResult=
-await supabaseClient
-.from("profiles")
-.select("role,status")
-.eq("id",user.id)
-.maybeSingle();
+    document
+    .getElementById("loginBox")
+    .classList.remove("hidden");
 
+    document
+    .getElementById("dashboard")
+    .classList.add("hidden");
 
-if(
-profileResult.data &&
-profileResult.data.role==="founder" &&
-profileResult.data.status==="approved"
-){
-
-document
-.getElementById("loginBox")
-.classList.add("hidden");
-
-
-document
-.getElementById("dashboard")
-.classList.remove("hidden");
-
-
-await loadRequests();
-
-}
-else{
-
-document
-.getElementById("loginBox")
-.classList.remove("hidden");
-
-
-document
-.getElementById("dashboard")
-.classList.add("hidden");
-
-}
+  }
 
 }
 
 
 /* =========================================
-   CHARGER LES DEMANDES
+   DEMANDES FONDATEUR
    ========================================= */
 
 async function loadRequests(){
 
-const result=
-await supabaseClient
-.from("access_requests")
-.select("*")
-.order(
-"created_at",
-{
-ascending:false
-}
-);
+  const result =
+    await supabaseClient
+    .from("access_requests")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    );
 
+  if(result.error){
 
-if(result.error){
+    console.error(
+      "Demandes :",
+      result.error
+    );
 
-console.error(result.error);
+    return;
+  }
 
-return;
+  const data =
+    result.data || [];
 
-}
+  const merchants =
+    data.filter(
+      item => item.role === "merchant"
+    );
 
+  const deliveries =
+    data.filter(
+      item => item.role === "delivery"
+    );
 
-const data=
-result.data || [];
+  document
+  .getElementById("merchantCount")
+  .innerText =
+    merchants.length;
 
+  document
+  .getElementById("deliveryCount")
+  .innerText =
+    deliveries.length;
 
-const merchants=
-data.filter(
-item=>item.role==="merchant"
-);
+  renderRequests(
+    merchants,
+    "merchantRequests"
+  );
 
-
-const deliveries=
-data.filter(
-item=>item.role==="delivery"
-);
-
-
-document
-.getElementById("merchantCount")
-.innerText=
-merchants.length;
-
-
-document
-.getElementById("deliveryCount")
-.innerText=
-deliveries.length;
-
-
-renderRequests(
-merchants,
-"merchantRequests"
-);
-
-
-renderRequests(
-deliveries,
-"deliveryRequests"
-);
+  renderRequests(
+    deliveries,
+    "deliveryRequests"
+  );
 
 }
 
 
 /* =========================================
-   AFFICHER LES DEMANDES
+   AFFICHAGE DEMANDES
    ========================================= */
 
 function renderRequests(data,id){
 
-const container=
-document.getElementById(id);
+  const container =
+    document.getElementById(id);
 
+  if(data.length === 0){
 
-if(data.length===0){
+    container.innerHTML =
+      "<p>Aucune demande.</p>";
 
-container.innerHTML=
-"<p>Aucune demande.</p>";
+    return;
+  }
 
-return;
+  let html = "";
 
-}
+  data.forEach(function(item){
 
+    html += `
+      <div class="request">
 
-let html="";
+        <strong>
+          ${escapeHTML(item.full_name || "")}
+        </strong>
 
+        <p>
+          📞 ${escapeHTML(item.phone || "")}
+        </p>
 
-data.forEach(function(item){
+        <p class="status">
+          Statut :
+          ${escapeHTML(item.status || "")}
+        </p>
 
-html+=`
+        ${
+          item.status === "pending"
+          ?
+          `
+          <button
+            onclick="approveRequest('${item.id}')"
+          >
+            ✅ Approuver
+          </button>
 
-<div class="request">
+          <button
+            class="back"
+            onclick="rejectRequest('${item.id}')"
+          >
+            ❌ Refuser
+          </button>
+          `
+          :
+          ""
+        }
 
-<strong>
-${escapeHTML(item.full_name || "")}
-</strong>
+      </div>
+    `;
 
-<p>
-📞 ${escapeHTML(item.phone || "")}
-</p>
+  });
 
-<p class="status">
-Statut :
-${escapeHTML(item.status || "")}
-</p>
-
-${
-item.status==="pending"
-?
-`
-
-<button
-onclick="approveRequest('${item.id}')"
->
-✅ Approuver
-</button>
-
-<button
-class="back"
-onclick="rejectRequest('${item.id}')"
->
-❌ Refuser
-</button>
-
-`
-:
-""
-}
-
-</div>
-
-`;
-
-});
-
-
-container.innerHTML=html;
+  container.innerHTML = html;
 
 }
 
@@ -1129,58 +1027,63 @@ container.innerHTML=html;
 
 async function approveRequest(id){
 
-const result=
-await supabaseClient
-.from("access_requests")
-.update(
-{
-status:"approved"
-}
-)
-.eq("id",id);
+  const request =
+    await supabaseClient
+    .from("access_requests")
+    .select("user_id")
+    .eq("id",id)
+    .single();
 
+  if(request.error){
 
-if(result.error){
+    alert(
+      "Erreur : " +
+      request.error.message
+    );
 
-alert(
-"Erreur : "+
-result.error.message
-);
+    return;
+  }
 
-return;
+  const result =
+    await supabaseClient
+    .from("access_requests")
+    .update(
+      {
+        status:"approved"
+      }
+    )
+    .eq("id",id);
 
-}
+  if(result.error){
 
+    alert(
+      "Erreur : " +
+      result.error.message
+    );
 
-const request=
-await supabaseClient
-.from("access_requests")
-.select("user_id")
-.eq("id",id)
-.single();
+    return;
+  }
 
+  if(
+    request.data &&
+    request.data.user_id
+  ){
 
-if(
-request.data &&
-request.data.user_id
-){
+    await supabaseClient
+    .from("profiles")
+    .update(
+      {
+        status:"approved"
+      }
+    )
+    .eq(
+      "id",
+      request.data.user_id
+    );
 
-await supabaseClient
-.from("profiles")
-.update(
-{
-status:"approved"
-}
-)
-.eq(
-"id",
-request.data.user_id
-);
+  }
 
-}
-
-
-await loadRequests();
+  await loadRequests();
 
 }
 
@@ -1191,210 +1094,96 @@ await loadRequests();
 
 async function rejectRequest(id){
 
-const result=
-await supabaseClient
-.from("access_requests")
-.update(
-{
-status:"rejected"
-}
-)
-.eq("id",id);
+  const request =
+    await supabaseClient
+    .from("access_requests")
+    .select("user_id")
+    .eq("id",id)
+    .single();
 
+  if(request.error){
 
-if(result.error){
-
-alert(
-"Erreur : "+
-result.error.message
-);
-
-return;
-
-}
-
-
-const request=
-await supabaseClient
-.from("access_requests")
-.select("user_id")
-.eq("id",id)
-.single();
-
-
-if(
-request.data &&
-request.data.user_id
-){
-
-await supabaseClient
-.from("profiles")
-.update(
-{
-status:"rejected"
-}
-)
-.eq(
-"id",
-request.data.user_id
-);
-
-}
-
-
-await loadRequests();
-
-}
-
-
-/* =========================================
-   DÉCONNEXION
-   ========================================= */
-
-async function logoutFounder(){
-
-await supabaseClient.auth.signOut();
-
-
-document
-.getElementById("dashboard")
-.classList.add("hidden");
-
-
-document
-.getElementById("loginBox")
-.classList.remove("hidden");
-
-
-showPage("home");
-
-}
-
-
-/* =========================================
-   LANGUE
-   ========================================= */
-
-function changeLanguage(language){
-
-if(language==="en"){
-
-document
-.getElementById("welcome")
-.innerText=
-"Welcome to VIRUS";
-
-
-document
-.getElementById("choose")
-.innerText=
-"Choose your space";
-
-}
-else{
-
-document
-.getElementById("welcome")
-.innerText=
-"Bienvenue sur VIRUS";
-
-
-document
-.getElementById("choose")
-.innerText=
-"Choisissez votre espace";
-
-}
-
-}
-
-
-/* =========================================
-   SÉCURITÉ AFFICHAGE
-   ========================================= */
-
-function escapeHTML(text){
-
-return String(text)
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-
-}
-async function checkMerchantAccess(){
-
-  const messageBox =
-    document.getElementById("merchantMessage");
-
-  try{
-
-    const user = await getUser();
-
-    const result =
-      await supabaseClient
-      .from("profiles")
-      .select("role,status")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if(result.error){
-      throw result.error;
-    }
-
-    if(
-      !result.data ||
-      result.data.role !== "merchant"
-    ){
-
-      showMessage(
-        messageBox,
-        "⏳ Votre demande doit être approuvée par le Fondateur."
-      );
-
-      return false;
-    }
-
-    if(result.data.status !== "approved"){
-
-      showMessage(
-        messageBox,
-        "⏳ Votre demande est encore en attente d'approbation."
-      );
-
-      return false;
-    }
-
-    showMessage(
-      messageBox,
-      "✅ Accès commerçant approuvé."
+    alert(
+      "Erreur : " +
+      request.error.message
     );
 
-    return true;
-
+    return;
   }
-  catch(error){
 
-    showMessage(
-      messageBox,
-      "❌ "+error.message
-    );
-
-    return false;
-  }
+  const result =
+    await supabaseClient
+    .from("access_requests")
+    .update(
+      {
+        status:"rejected"
       }
-  async function openMerchantSpace(){
+    )
+    .eq("id",id);
+
+  if(result.error){
+
+    alert(
+      "Erreur : " +
+      result.error.message
+    );
+
+    return;
+  }
+
+  if(
+    request.data &&
+    request.data.user_id
+  ){
+
+    await supabaseClient
+    .from("profiles")
+    .update(
+      {
+        status:"rejected"
+      }
+    )
+    .eq(
+      "id",
+      request.data.user_id
+    );
+
+  }
+
+  await loadRequests();
+
+}
+
+
+/* =========================================
+   ESPACE COMMERÇANT
+   ========================================= */
+
+async function openMerchantPage(){
+
+  showPage("merchant");
+
+  await openMerchantSpace();
+
+}
+
+
+async function openMerchantSpace(){
 
   const messageBox =
-    document.getElementById("merchantAccessMessage");
+    document.getElementById(
+      "merchantAccessMessage"
+    );
 
   const panel =
-    document.getElementById("merchantPanel");
+    document.getElementById(
+      "merchantPanel"
+    );
 
   try{
 
-    const user = await getUser();
+    const user =
+      await getUser();
 
     const result =
       await supabaseClient
@@ -1407,122 +1196,204 @@ async function checkMerchantAccess(){
       throw result.error;
     }
 
-    if(
-      !result.data ||
-      result.data.role !== "merchant" ||
-      result.data.status !== "approved"
-    ){
+    if(!result.data){
 
       panel.classList.add("hidden");
 
-      messageBox.innerHTML =
-        '<div class="message">⏳ Votre compte commerçant doit être approuvé par le Fondateur.</div>';
+      showMessage(
+        messageBox,
+        "⏳ Vous devez d'abord envoyer une demande commerçant."
+      );
+
+      return;
+    }
+
+    if(result.data.role !== "merchant"){
+
+      panel.classList.add("hidden");
+
+      showMessage(
+        messageBox,
+        "⏳ Ce compte n'est pas enregistré comme commerçant."
+      );
+
+      return;
+    }
+
+    if(result.data.status !== "approved"){
+
+      panel.classList.add("hidden");
+
+      showMessage(
+        messageBox,
+        "⏳ Votre demande doit être approuvée par le Fondateur."
+      );
 
       return;
     }
 
     panel.classList.remove("hidden");
 
-    messageBox.innerHTML =
-      '<div class="message">✅ Compte commerçant approuvé.</div>';
+    showMessage(
+      messageBox,
+      "✅ Compte commerçant approuvé."
+    );
 
-    loadMyArticles();
+    await loadMyArticles();
 
   }
   catch(error){
 
-    messageBox.innerHTML =
-      '<div class="message">❌ '+escapeHTML(error.message)+'</div>';
+    panel.classList.add("hidden");
+
+    showMessage(
+      messageBox,
+      "❌ " +
+      (
+        error.message ||
+        String(error)
+      )
+    );
 
   }
 
 }
 
 
+/* =========================================
+   PUBLIER ARTICLE
+   ========================================= */
+
 async function publishArticle(){
 
   const name =
-    document.getElementById("articleName")
-    .value.trim();
+    document
+    .getElementById("articleName")
+    .value
+    .trim();
 
   const price =
-    document.getElementById("articlePrice")
+    document
+    .getElementById("articlePrice")
     .value;
 
   const description =
-    document.getElementById("articleDescription")
-    .value.trim();
+    document
+    .getElementById("articleDescription")
+    .value
+    .trim();
 
   const message =
-    document.getElementById("articleMessage");
+    document.getElementById(
+      "articleMessage"
+    );
 
   if(!name || !price){
 
-    message.innerHTML =
-      '<div class="message">Veuillez entrer le nom et le prix.</div>';
+    showMessage(
+      message,
+      "Veuillez entrer le nom et le prix."
+    );
 
     return;
   }
 
   try{
 
-    const user = await getUser();
+    const user =
+      await getUser();
 
     const result =
       await supabaseClient
       .from("articles_virus")
-      .insert({
-        commercant_id:user.id,
-        nom:name,
-        prix:Number(price),
-        description:description
-      });
+      .insert(
+        {
+          commercant_id:user.id,
+          nom:name,
+          prix:Number(price),
+          description:description
+        }
+      );
 
     if(result.error){
       throw result.error;
     }
 
-    message.innerHTML =
-      '<div class="message">✅ Article publié.</div>';
+    showMessage(
+      message,
+      "✅ Article publié avec succès."
+    );
 
-    document.getElementById("articleName").value="";
-    document.getElementById("articlePrice").value="";
-    document.getElementById("articleDescription").value="";
+    document
+    .getElementById("articleName")
+    .value = "";
 
-    loadMyArticles();
+    document
+    .getElementById("articlePrice")
+    .value = "";
+
+    document
+    .getElementById("articleDescription")
+    .value = "";
+
+    await loadMyArticles();
 
   }
   catch(error){
 
-    message.innerHTML =
-      '<div class="message">❌ '+escapeHTML(error.message)+'</div>';
+    showMessage(
+      message,
+      "❌ " +
+      (
+        error.message ||
+        String(error)
+      )
+    );
 
   }
 
 }
 
 
+/* =========================================
+   MES ARTICLES
+   ========================================= */
+
 async function loadMyArticles(){
 
   const container =
-    document.getElementById("myArticles");
+    document.getElementById(
+      "myArticles"
+    );
 
   try{
 
-    const user = await getUser();
+    const user =
+      await getUser();
 
     const result =
       await supabaseClient
       .from("articles_virus")
       .select("*")
-      .eq("commercant_id",user.id)
-      .order("created_at",{ascending:false});
+      .eq(
+        "commercant_id",
+        user.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
 
     if(result.error){
       throw result.error;
     }
 
-    if(!result.data || result.data.length===0){
+    if(
+      !result.data ||
+      result.data.length === 0
+    ){
 
       container.innerHTML =
         "<p>Aucun article.</p>";
@@ -1530,54 +1401,118 @@ async function loadMyArticles(){
       return;
     }
 
-    let html="";
+    let html = "";
 
     result.data.forEach(function(article){
 
       html += `
-      <div class="request">
+        <div class="request">
 
-        <strong>
-        ${escapeHTML(article.nom || "")}
-        </strong>
+          <strong>
+            ${escapeHTML(article.nom || "")}
+          </strong>
 
-        <p>
-        💰 ${escapeHTML(article.prix || 0)} FCFA
-        </p>
+          <p>
+            💰 ${escapeHTML(article.prix || 0)} FCFA
+          </p>
 
-        <p>
-        ${escapeHTML(article.description || "")}
-        </p>
+          <p>
+            ${escapeHTML(article.description || "")}
+          </p>
 
-      </div>
+        </div>
       `;
 
     });
 
-    container.innerHTML=html;
+    container.innerHTML =
+      html;
 
   }
   catch(error){
 
     container.innerHTML =
-      '<div class="message">❌ '+escapeHTML(error.message)+'</div>';
+      '<div class="message">❌ ' +
+      escapeHTML(
+        error.message ||
+        String(error)
+      ) +
+      '</div>';
 
   }
 
+}
+
+
+/* =========================================
+   DÉCONNEXION
+   ========================================= */
+
+async function logoutFounder(){
+
+  await supabaseClient.auth.signOut();
+
+  document
+  .getElementById("dashboard")
+  .classList.add("hidden");
+
+  document
+  .getElementById("loginBox")
+  .classList.remove("hidden");
+
+  showPage("home");
+
+}
+
+
+/* =========================================
+   LANGUE
+   ========================================= */
+
+function changeLanguage(language){
+
+  if(language === "en"){
+
+    document
+    .getElementById("welcome")
+    .innerText =
+      "Welcome to VIRUS";
+
+    document
+    .getElementById("choose")
+    .innerText =
+      "Choose your space";
+
   }
-  function openMerchantPage(){
-  showPage('merchant');
-  openMerchantSpace();
+  else{
+
+    document
+    .getElementById("welcome")
+    .innerText =
+      "Bienvenue sur VIRUS";
+
+    document
+    .getElementById("choose")
+    .innerText =
+      "Choisissez votre espace";
+
   }
-/* =====================================
-   OUVERTURE ESPACE COMMERÇANT
-   ===================================== */
 
-function openMerchantPage(){
+}
 
-  showPage("merchant");
 
-  openMerchantSpace();
+/* =========================================
+   SÉCURITÉ AFFICHAGE
+   ========================================= */
+
+function escapeHTML(text){
+
+  return String(text)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 
 }
 
