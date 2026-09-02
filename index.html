@@ -1517,6 +1517,215 @@ function escapeHTML(text){
 }
 
 </script>
+<script>
+/* ================================
+   VIRUS — INSCRIPTION COMMERÇANT
+   ================================ */
 
+document.addEventListener("DOMContentLoaded", function () {
+
+  const merchantSection = document.getElementById("merchant");
+
+  if (!merchantSection) return;
+
+  const card = merchantSection.querySelector(".card");
+
+  if (!card) return;
+
+  /* Évite de créer le formulaire deux fois */
+  if (document.getElementById("merchantRegistration")) return;
+
+  const form = document.createElement("div");
+  form.id = "merchantRegistration";
+
+  form.innerHTML = `
+    <div style="
+      margin-top:20px;
+      padding:15px;
+      border:1px solid white;
+      border-radius:12px;
+    ">
+
+      <h3>📝 Demande d'accès commerçant</h3>
+
+      <p>
+        Remplissez vos informations pour demander l'accès
+        à l'espace commerçant VIRUS.
+      </p>
+
+      <input
+        id="merchantName"
+        type="text"
+        placeholder="Nom du commerçant"
+        style="width:100%;box-sizing:border-box;margin:8px 0;"
+      >
+
+      <input
+        id="merchantPhone"
+        type="tel"
+        placeholder="Numéro de téléphone"
+        style="width:100%;box-sizing:border-box;margin:8px 0;"
+      >
+
+      <button
+        id="merchantButton"
+        onclick="addRequest('merchant')"
+        style="width:100%;margin-top:10px;"
+      >
+        📤 Envoyer ma demande
+      </button>
+
+      <div
+        id="merchantMessage"
+        style="margin-top:15px;"
+      ></div>
+
+    </div>
+  `;
+
+  /* Place le formulaire avant le message d'accès */
+  const accessMessage =
+    document.getElementById("merchantAccessMessage");
+
+  if (accessMessage) {
+    accessMessage.insertAdjacentElement("afterend", form);
+  } else {
+    card.insertBefore(form, card.firstChild);
+  }
+
+});
+
+
+/* ==========================================
+   ENVOI DE LA DEMANDE COMMERÇANT
+   ========================================== */
+
+async function envoyerDemandeCommercant() {
+
+  const name =
+    document.getElementById("merchantName")?.value.trim();
+
+  const phone =
+    document.getElementById("merchantPhone")?.value.trim();
+
+  const message =
+    document.getElementById("merchantMessage");
+
+  const button =
+    document.getElementById("merchantButton");
+
+  if (!name || !phone) {
+
+    if (message) {
+      message.innerHTML =
+        "⚠️ Veuillez remplir tous les champs.";
+    }
+
+    return;
+  }
+
+  try {
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "⏳ Envoi...";
+    }
+
+    const user = await getUser();
+
+    if (!user) {
+      throw new Error("Utilisateur non connecté.");
+    }
+
+    const { data: existing } = await supabase
+      .from("access_requests")
+      .select("id,status")
+      .eq("user_id", user.id)
+      .eq("role", "merchant")
+      .maybeSingle();
+
+    if (existing) {
+
+      if (message) {
+        message.innerHTML =
+          "ℹ️ Vous avez déjà envoyé une demande.";
+      }
+
+      return;
+    }
+
+    const { error } = await supabase
+      .from("access_requests")
+      .insert({
+        user_id: user.id,
+        role: "merchant",
+        status: "pending",
+        name: name,
+        phone: phone
+      });
+
+    if (error) throw error;
+
+    /* Création / mise à jour du profil */
+    await supabase
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        role: "merchant",
+        status: "pending",
+        name: name,
+        phone: phone
+      });
+
+    if (message) {
+      message.innerHTML =
+        "✅ Demande envoyée !<br>" +
+        "⏳ Attendez maintenant l'approbation du Fondateur.";
+    }
+
+    document.getElementById("merchantName").value = "";
+    document.getElementById("merchantPhone").value = "";
+
+  } catch (error) {
+
+    console.error(error);
+
+    if (message) {
+      message.innerHTML =
+        "❌ Erreur : " + (error.message || "Impossible d'envoyer la demande.");
+    }
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "📤 Envoyer ma demande";
+    }
+
+  }
+}
+
+
+/* ==========================================
+   REMPLACE addRequest POUR LE COMMERÇANT
+   ========================================== */
+
+const ancienneFonctionAddRequest = window.addRequest;
+
+window.addRequest = async function(type) {
+
+  if (type === "merchant") {
+    await envoyerDemandeCommercant();
+    return;
+  }
+
+  /* Le système existant continue de fonctionner
+     pour le livreur */
+  if (ancienneFonctionAddRequest) {
+    return ancienneFonctionAddRequest(type);
+  }
+
+};
+</script>
 </body>
 </html>
