@@ -1727,5 +1727,291 @@ window.addRequest = async function(type) {
 
 };
 </script>
+  <script>
+/* =========================================
+   VIRUS — ESPACE CLIENT
+   ========================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const clientSection = document.getElementById("client");
+
+  if (!clientSection) return;
+
+  const card = clientSection.querySelector(".card");
+
+  if (!card) return;
+
+  if (document.getElementById("virusClientSpace")) return;
+
+  const espace = document.createElement("div");
+  espace.id = "virusClientSpace";
+
+  espace.innerHTML = `
+    <div style="
+      margin-top:20px;
+      padding:15px;
+      border:1px solid white;
+      border-radius:12px;
+    ">
+
+      <h3>🛍️ Articles disponibles</h3>
+
+      <div id="virusArticles">
+        <p>⏳ Chargement des articles...</p>
+      </div>
+
+    </div>
+  `;
+
+  card.insertBefore(espace, card.lastElementChild);
+
+  chargerArticlesVirus();
+});
+
+
+/* =========================================
+   CHARGER LES ARTICLES
+   ========================================= */
+
+async function chargerArticlesVirus() {
+
+  const zone = document.getElementById("virusArticles");
+
+  if (!zone) return;
+
+  try {
+
+    const { data, error } = await supabase
+      .from("articles_virus")
+      .select("id, nom, prix, description, created_at")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+
+      zone.innerHTML =
+        "<p>📦 Aucun article disponible pour le moment.</p>";
+
+      return;
+    }
+
+    zone.innerHTML = "";
+
+    data.forEach(article => {
+
+      const bloc = document.createElement("div");
+
+      bloc.style.cssText = `
+        border:1px solid white;
+        border-radius:10px;
+        padding:12px;
+        margin:10px 0;
+      `;
+
+      bloc.innerHTML = `
+        <h3>${escapeHTML(article.nom || "Article")}</h3>
+
+        <p>
+          ${escapeHTML(article.description || "Aucune description")}
+        </p>
+
+        <p>
+          <strong>
+            💰 ${Number(article.prix || 0).toLocaleString("fr-FR")} FCFA
+          </strong>
+        </p>
+
+        <button onclick="ouvrirCommandeVirus('${article.id}')">
+          🛒 Commander
+        </button>
+      `;
+
+      zone.appendChild(bloc);
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    zone.innerHTML =
+      "❌ Impossible de charger les articles.";
+
+  }
+}
+
+
+/* =========================================
+   FORMULAIRE DE COMMANDE
+   ========================================= */
+
+async function ouvrirCommandeVirus(articleId) {
+
+  const ancien = document.getElementById("virusCommande");
+
+  if (ancien) ancien.remove();
+
+  const formulaire = document.createElement("div");
+
+  formulaire.id = "virusCommande";
+
+  formulaire.style.cssText = `
+    margin-top:20px;
+    padding:15px;
+    border:1px solid white;
+    border-radius:12px;
+  `;
+
+  formulaire.innerHTML = `
+    <h3>🛒 Passer la commande</h3>
+
+    <input
+      id="virusClientNom"
+      type="text"
+      placeholder="Votre nom"
+      style="width:100%;box-sizing:border-box;margin:8px 0;"
+    >
+
+    <input
+      id="virusClientTelephone"
+      type="tel"
+      placeholder="Votre numéro de téléphone"
+      style="width:100%;box-sizing:border-box;margin:8px 0;"
+    >
+
+    <input
+      id="virusAdresseLivraison"
+      type="text"
+      placeholder="Adresse de livraison"
+      style="width:100%;box-sizing:border-box;margin:8px 0;"
+    >
+
+    <input
+      id="virusQuantite"
+      type="number"
+      min="1"
+      value="1"
+      placeholder="Quantité"
+      style="width:100%;box-sizing:border-box;margin:8px 0;"
+    >
+
+    <button
+      onclick="confirmerCommandeVirus('${articleId}')"
+      style="width:100%;margin-top:10px;"
+    >
+      ✅ Confirmer la commande
+    </button>
+
+    <div id="virusCommandeMessage" style="margin-top:15px;"></div>
+  `;
+
+  const clientSection = document.getElementById("client");
+  const card = clientSection.querySelector(".card");
+
+  card.insertBefore(formulaire, card.lastElementChild);
+
+  formulaire.scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+
+/* =========================================
+   ENREGISTRER LA COMMANDE
+   ========================================= */
+
+async function confirmerCommandeVirus(articleId) {
+
+  const nom =
+    document.getElementById("virusClientNom")?.value.trim();
+
+  const telephone =
+    document.getElementById("virusClientTelephone")?.value.trim();
+
+  const adresse =
+    document.getElementById("virusAdresseLivraison")?.value.trim();
+
+  const quantite =
+    Number(document.getElementById("virusQuantite")?.value || 1);
+
+  const message =
+    document.getElementById("virusCommandeMessage");
+
+  if (!nom || !telephone || !adresse || quantite < 1) {
+
+    if (message) {
+      message.innerHTML =
+        "⚠️ Veuillez remplir correctement tous les champs.";
+    }
+
+    return;
+  }
+
+  try {
+
+    const user = await getUser();
+
+    if (!user) {
+      throw new Error("Utilisateur non connecté.");
+    }
+
+    const { data: article, error: articleError } =
+      await supabase
+        .from("articles_virus")
+        .select("id, commercant_id, nom, prix")
+        .eq("id", articleId)
+        .single();
+
+    if (articleError) throw articleError;
+
+    const total =
+      Number(article.prix || 0) * quantite;
+
+    const { data: commande, error } =
+      await supabase
+        .from("commandes_virus")
+        .insert({
+          client_id: user.id,
+          article_id: article.id,
+          commercant_id: article.commercant_id,
+          quantite: quantite,
+          montant: total,
+          adresse_livraison: adresse,
+          telephone_client: telephone,
+          statut: "pending"
+        })
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    if (message) {
+
+      message.innerHTML = `
+        ✅ Commande envoyée avec succès !<br><br>
+        📦 Article : ${escapeHTML(article.nom || "")}<br>
+        🔢 Quantité : ${quantite}<br>
+        💰 Total : ${total.toLocaleString("fr-FR")} FCFA<br>
+        📍 Livraison : ${escapeHTML(adresse)}<br><br>
+        ⏳ Votre commande est en attente de traitement.
+      `;
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    if (message) {
+      message.innerHTML =
+        "❌ Erreur lors de la commande : " +
+        (error.message || "Erreur inconnue.");
+    }
+
+  }
+}
+  </script>
 </body>
 </html>
